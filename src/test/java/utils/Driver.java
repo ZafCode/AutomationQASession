@@ -19,21 +19,32 @@ public class Driver {
 
     public static WebDriver getDriver(String browserType) {
         if (driverPool.get() == null) {
-            synchronized (Driver.class) {
-                switch (browserType) {
-                    case "chrome":
-                        WebDriverManager.chromedriver().setup();
-                        ChromeOptions chromeOptions = new ChromeOptions();
-                        chromeOptions.setAcceptInsecureCerts(true);
-                        driverPool.set(new ChromeDriver());
-                        break;
-                    case "firefox":
-                        WebDriverManager.firefoxdriver().setup();
-                        driverPool.set(new FirefoxDriver());
-                        break;
-                }
-            }
+            setDriver(browserType);
         }
         return driverPool.get();
+    }
+
+    public static void setDriver(String browserType) {
+        synchronized (Driver.class) {
+            switch (browserType) {
+                case "chrome":
+                    WebDriverManager.chromedriver().setup();
+                    ChromeOptions chromeOptions = new ChromeOptions();
+                    chromeOptions.setAcceptInsecureCerts(true);
+                    driverPool.set(new ChromeDriver());
+                    break;
+                case "firefox":
+                    WebDriverManager.firefoxdriver().setup();
+                    driverPool.set(new FirefoxDriver());
+                    break;
+            }
+        }
+    }
+
+    public static void closeDriver() {
+        if (driverPool.get() != null) {
+            driverPool.get().quit();
+            driverPool.remove();
+        }
     }
 }
